@@ -72,7 +72,15 @@ class StudentViewSet(ModelViewSet):
     queryset = Student.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = StudentFilter
-    permission_classes = [IsTeacherOrAdmin]
+    # permission_classes = [IsTeacherOrAdmin]
+    def get_permissions(self):
+        if self.action in ["create", "destroy", "update", "partial_update"]:
+            permission_classes = [IsTeacherOrAdmin]
+
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+    
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
             return StudentSerializer
