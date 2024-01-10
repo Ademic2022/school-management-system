@@ -15,10 +15,10 @@
   ],
   "env": {
     "ENVIRONMENT": "production",
-    "DB_NAME": "sql5675810",
-    "DB_USER": "sql5675810",
-    "DB_PASSWORD": "DKth7AhCqH",
-    "DB_HOST": "sql5.freesqldatabase.com",
-    "DB_PORT": "3306"
+    "DB_NAME": "postgres",
+    "DB_USER": "postgres",
+    "DB_PASSWORD": "String@1234sms",
+    "DB_HOST": "db.ffgqtkyeivqcjdffqhbv.supabase.co",
+    "DB_PORT": "5432"
   }
 }

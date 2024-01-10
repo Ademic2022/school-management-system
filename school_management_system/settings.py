@@ -27,6 +27,7 @@ SECRET_KEY = "django-insecure-vejv_l41#brfz!7%)g7z#d2ri9d7^mdkbwtin0u2g+%+=@s1d^
 DEBUG = True
 
 ALLOWED_HOSTS = ["school-management-system-khaki-nine.vercel.app"]
+# ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -108,17 +109,37 @@ WSGI_APPLICATION = "school_management_system.wsgi.application"
 #         "NAME": BASE_DIR / "db.sqlite3",
 #     }
 # }
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "sql5675810",
+#         "USER": "sql5675810",
+#         "PASSWORD": "DKth7AhCqH",
+#         "HOST": "sql5.freesqldatabase.com",
+#         "PORT": "3306",
+#     }
+# }
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "sms",
+#         "USER": "root",
+#         "PASSWORD": "",
+#         "HOST": "localhost",
+#         "PORT": "3306",
+#     }
+# }
+# postgrees database
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "sql5675810",
-        "USER": "sql5675810",
-        "PASSWORD": "DKth7AhCqH",
-        "HOST": "sql5.freesqldatabase.com",
-        "PORT": "3306",
+        "NAME": "postgres",
+        "USER": "postgres",
+        "PASSWORD": "String@1234sms",
+        "HOST": "db.ffgqtkyeivqcjdffqhbv.supabase.co",
+        "PORT": "5432",
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
