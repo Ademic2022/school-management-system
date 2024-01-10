@@ -30,3 +30,8 @@ if ! python /vercel/path0/manage.py migrate; then
   echo "Error: Failed to apply migrations."
   exit 1
 fi
+
+# Minimal handler function to satisfy Vercel requirements
+handler() {
+  echo "Vercel deployment complete."
+}
