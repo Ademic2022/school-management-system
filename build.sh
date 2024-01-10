@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # This script is used to build and set up the Django project.
+# Use Python3 and ensure pip is installed
+python3 -m ensurepip --default-pip
 
+# Upgrade pip to the latest version
+python3 -m pip install --upgrade pip
 # Install project dependencies
 if ! python -m pip install -r /vercel/path0/requirements.txt; then
   echo "Error: Failed to install dependencies."
