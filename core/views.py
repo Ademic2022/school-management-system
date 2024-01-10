@@ -34,7 +34,6 @@ class ClassRoomViewSet(ModelViewSet):
 
 class TeacherViewSet(ModelViewSet):
     queryset = Teacher.objects.all()
-
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
             return TeacherSerializer
@@ -68,29 +67,16 @@ class TeacherViewSet(ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
-    
-    
-    # def update(self, request, *args, **kwargs):
-    #     print("I am triggerd for update")
-    #     raise MethodNotAllowed("PUT", "Put Request not Allowed!")
-
-
-
 
 class StudentViewSet(ModelViewSet):
     queryset = Student.objects.all()
-    serializer_class = StudentSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = StudentFilter
     permission_classes = [IsTeacherOrAdmin]
-
-    # def get_permissions(self):
-    #     if self.action in ["create", "destroy", "update", "partial_update"]:
-    #         permission_classes = [IsTeacherOrAdmin]
-
-    #     else:
-    #         permission_classes = [IsAuthenticated]
-    #     return [permission() for permission in permission_classes]
+    def get_serializer_class(self):
+        if self.action in ["list", "retrieve"]:
+            return StudentSerializer
+        return StudentSerializer2
 
     @action(detail=False, methods=["GET"])
     def get_enrolled_subjects(self, request):
@@ -108,12 +94,6 @@ class StudentViewSet(ModelViewSet):
         serializer = SubjectSerializer(enrolled_subjects, many=True)
 
         return Response(serializer.data, status=200)
-
-    # def partial_update(self, request, *args, **kwargs):
-    #     return super().partial_update(request, *args, **kwargs)
-
-    # def update(self, request, *args, **kwargs):
-    #     raise MethodNotAllowed(method='PUT', detail='PUT Request not Allowed!')
 
 
 class AdminViewSet(ModelViewSet):
