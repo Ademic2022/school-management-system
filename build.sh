@@ -2,6 +2,9 @@
 
 # This script is used to build and set up the Django project.
 
+# Install MySQL development library
+apt-get install -y libmysqlclient-dev
+
 # Create and activate virtual environment
 python -m venv venv
 source venv/bin/activate
