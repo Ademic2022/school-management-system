@@ -26,11 +26,11 @@ SECRET_KEY = "django-insecure-vejv_l41#brfz!7%)g7z#d2ri9d7^mdkbwtin0u2g+%+=@s1d^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "school-management-system-alpha.vercel.app",
-    "school-management-system-dlbe49zs9-ademics-projects.vercel.app",
-    ]
-# ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = [
+#     "school-management-system-alpha.vercel.app",
+#     "school-management-system-dlbe49zs9-ademics-projects.vercel.app",
+# ]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -106,25 +106,24 @@ WSGI_APPLICATION = "school_management_system.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-# DATABASES = {
-
-# postgrees database
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "String@1234sms",
-        "HOST": "db.ffgqtkyeivqcjdffqhbv.supabase.co",
-        "PORT": "5432",
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# postgrees database
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "postgres",
+#         "USER": "postgres",
+#         "PASSWORD": "String@1234sms",
+#         "HOST": "db.ffgqtkyeivqcjdffqhbv.supabase.co",
+#         "PORT": "5432",
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
