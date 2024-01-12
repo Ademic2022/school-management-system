@@ -31,7 +31,7 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     sex = models.CharField(max_length=6, choices=SexChoices.choices)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True)
     address = models.TextField(null=True)
     email = models.EmailField(max_length=40, unique=True)
     role = models.CharField(max_length=10, choices=RoleChoices.choices)
