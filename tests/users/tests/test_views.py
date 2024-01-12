@@ -22,6 +22,7 @@ def test_user_registration(client):
         "sex": CustomUser.SexChoices.MALE,
         "role": CustomUser.RoleChoices.STUDENT,
         "password": "12345678QQ",
+        "email": "example@gmail.com",
         "date_of_birth": timezone.now().date(),
     }
 
@@ -32,7 +33,7 @@ def test_user_registration(client):
 
     """user login test"""
     user_login_data = {
-        "username": "ademic",
+        "email": "example@gmail.com",
         "password": "12345678QQ",
     }
     response = client.post("/auth/login/", user_login_data)
@@ -67,6 +68,7 @@ def test_profile_image_upload(client):
         "sex": CustomUser.SexChoices.MALE,
         "role": CustomUser.RoleChoices.STUDENT,
         "password": "12345678QQ",
+        "email": "example@gmail.com",
         "date_of_birth": timezone.now().date(),
     }
     response = client.post("/auth/users/", user_data)
