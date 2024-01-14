@@ -90,7 +90,6 @@ DJOSER = {
     "SERIALIZERS": {
         "user_create": "users.serializers.UserCreateSerializer",
         "user": "users.serializers.UserSerializer",
-        "activation": "users.serializers.CustomActivationSerializer",
     },
 }
 
