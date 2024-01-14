@@ -36,6 +36,7 @@ def setup_users():
         "sex": CustomUser.SexChoices.MALE,
         "date_of_birth": timezone.now().date() - timedelta(weeks=500),
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
         "email": "example@gmail.com",
     }
 
@@ -43,6 +44,15 @@ def setup_users():
     response = client.post("/auth/users/", teacher_data)
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data["username"] == teacher_data["username"]
+
+    # Check that the user is not active
+    user = CustomUser.objects.get(email="example@gmail.com")
+    assert not user.is_active
+
+    # Bypass Djoser User Activation
+    user = CustomUser.objects.get(email="example@gmail.com")
+    user.is_active = True
+    user.save()
 
     # Teacher login
     teacher_login_data = {
@@ -63,6 +73,7 @@ def setup_users():
         "sex": CustomUser.SexChoices.MALE,
         "date_of_birth": timezone.now().date() - timedelta(weeks=50),
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
         "email": "example1@gmail.com",
     }
 
@@ -70,6 +81,15 @@ def setup_users():
     response = client.post("/auth/users/", student_data)
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data["username"] == student_data["username"]
+
+    # Check that the user is not active
+    user = CustomUser.objects.get(email="example1@gmail.com")
+    assert not user.is_active
+
+    # Bypass Djoser User Activation
+    user = CustomUser.objects.get(email="example1@gmail.com")
+    user.is_active = True
+    user.save()
 
     # Student login
     student_login_data = {
@@ -90,6 +110,7 @@ def setup_users():
         "sex": CustomUser.SexChoices.MALE,
         "date_of_birth": timezone.now().date() - timedelta(weeks=1000),
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
         "email": "example2@gmail.com",
     }
 
@@ -97,6 +118,15 @@ def setup_users():
     response = client.post("/auth/users/", admin_data)
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data["username"] == admin_data["username"]
+
+    # Check that the user is not active
+    user = CustomUser.objects.get(email="example2@gmail.com")
+    assert not user.is_active
+
+    # Bypass Djoser User Activation
+    user = CustomUser.objects.get(email="example2@gmail.com")
+    user.is_active = True
+    user.save()
 
     # Admin login
     admin_login_data = {
@@ -153,6 +183,7 @@ def setup_student_data():
         "sex": CustomUser.SexChoices.MALE,
         "role": CustomUser.RoleChoices.STUDENT,
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
         "email": "example3@gmail.com",
         "date_of_birth": timezone.now().date() - timedelta(weeks=500),
     }
@@ -187,6 +218,7 @@ def setup_student_profile_data():
         "sex": CustomUser.SexChoices.MALE,
         "role": CustomUser.RoleChoices.STUDENT,
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
         "email": "example4@gmail.com",
         "date_of_birth": timezone.now().date(),
     }
@@ -303,6 +335,7 @@ def setup_exam_result_data():
         "sex": CustomUser.SexChoices.MALE,
         "role": CustomUser.RoleChoices.STUDENT,
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
         "email": "example5@gmail.com",
         "date_of_birth": timezone.now().date(),
     }
