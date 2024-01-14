@@ -22,6 +22,7 @@ def test_user_registration(client):
         "sex": CustomUser.SexChoices.MALE,
         "role": CustomUser.RoleChoices.STUDENT,
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
         "email": "example@gmail.com",
         "date_of_birth": timezone.now().date(),
     }
@@ -30,6 +31,15 @@ def test_user_registration(client):
     assert response.status_code == 201
     assert response.data["username"] == "ademic"
     assert Student.objects.all().exists()
+
+    # Check that the user is not active
+    user = CustomUser.objects.get(username="ademic")
+    assert not user.is_active
+
+    # Bypass Djoser User Activation
+    user = CustomUser.objects.get(email="example@gmail.com")
+    user.is_active = True
+    user.save()
 
     """user login test"""
     user_login_data = {
@@ -43,7 +53,7 @@ def test_user_registration(client):
 
     """Affirm user authorization"""
     response = client.get(
-        "/authusers/me", HTTP_AUTHORIZATION=f"Token {token}", follow=True
+        "/auth/users/me", HTTP_AUTHORIZATION=f"Token {token}", follow=True
     )
     assert response.status_code == 200
     assert "username" in response.data
@@ -68,6 +78,7 @@ def test_profile_image_upload(client):
         "sex": CustomUser.SexChoices.MALE,
         "role": CustomUser.RoleChoices.STUDENT,
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
         "email": "example@gmail.com",
         "date_of_birth": timezone.now().date(),
     }
