@@ -29,7 +29,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "school-management-system-alpha.vercel.app",
-    "school-management-system-d8vr6ya5k-ademics-projects.vercel.app",
 ]
 # ALLOWED_HOSTS = ["*"]
 
