@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "school-management-system-alpha.vercel.app",
     "school-management-system-dlbe49zs9-ademics-projects.vercel.app",
-    ]
+]
 # ALLOWED_HOSTS = ["*"]
 
 
@@ -77,17 +78,26 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
+    "LOGIN_FIELD": "email",
+    "SEND_ACTIVATION_EMAIL": True,
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "USERNAME_CHANGED_EMAIL_CONFIRMATION": True,
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+    "SEND_CONFIRMATION_EMAIL": True,
+    "PASSWORD_RESET_CONFIRM_URL": "auth/users/reset_password/{uid}/{token}",
+    "USERNAME_RESET_CONFIRM_URL": "auth/users/reset_email_confirm/{uid}/{token}",
+    "ACTIVATION_URL": "activation/{uid}/{token}",
     "SERIALIZERS": {
         "user_create": "users.serializers.UserCreateSerializer",
         "user": "users.serializers.UserSerializer",
-    }
+    },
 }
 
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -106,25 +116,25 @@ WSGI_APPLICATION = "school_management_system.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-# DATABASES = {
-
-# postgrees database
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "String@1234sms",
-        "HOST": "db.ffgqtkyeivqcjdffqhbv.supabase.co",
-        "PORT": "5432",
+        "ENGINE": config("DATABASE_ENGINE", default="django.db.backends.sqlite3"),
+        "NAME": config("DATABASE_NAME", default="db.sqlite3"),
+        "USER": config("DATABASE_USER", default="myuser"),
+        "PASSWORD": config("DATABASE_PASSWORD", default="mypassword"),
+        "HOST": config("DATABASE_HOST", default="localhost"),
+        "PORT": config("DATABASE_PORT", default=""),
     }
 }
+# Email configurations
+EMAIL_BACKEND = config(
+    "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

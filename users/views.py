@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from users.filters import CustomUserFilter, ImageFilter
 from rest_framework.viewsets import ModelViewSet
 from users.serializers import (

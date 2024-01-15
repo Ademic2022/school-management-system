@@ -36,6 +36,8 @@ def setup_users():
         "sex": CustomUser.SexChoices.MALE,
         "date_of_birth": timezone.now().date() - timedelta(weeks=500),
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
+        "email": "example@gmail.com",
     }
 
     # Create teacher user
@@ -43,9 +45,18 @@ def setup_users():
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data["username"] == teacher_data["username"]
 
+    # Check that the user is not active
+    user = CustomUser.objects.get(email="example@gmail.com")
+    assert not user.is_active
+
+    # Bypass Djoser User Activation
+    user = CustomUser.objects.get(email="example@gmail.com")
+    user.is_active = True
+    user.save()
+
     # Teacher login
     teacher_login_data = {
-        "username": teacher_data["username"],
+        "email": teacher_data["email"],
         "password": teacher_data["password"],
     }
     response = client.post("/auth/login/", teacher_login_data)
@@ -62,6 +73,8 @@ def setup_users():
         "sex": CustomUser.SexChoices.MALE,
         "date_of_birth": timezone.now().date() - timedelta(weeks=50),
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
+        "email": "example1@gmail.com",
     }
 
     # Create student user
@@ -69,9 +82,18 @@ def setup_users():
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data["username"] == student_data["username"]
 
+    # Check that the user is not active
+    user = CustomUser.objects.get(email="example1@gmail.com")
+    assert not user.is_active
+
+    # Bypass Djoser User Activation
+    user = CustomUser.objects.get(email="example1@gmail.com")
+    user.is_active = True
+    user.save()
+
     # Student login
     student_login_data = {
-        "username": student_data["username"],
+        "email": student_data["email"],
         "password": student_data["password"],
     }
     response = client.post("/auth/login/", student_login_data)
@@ -88,6 +110,8 @@ def setup_users():
         "sex": CustomUser.SexChoices.MALE,
         "date_of_birth": timezone.now().date() - timedelta(weeks=1000),
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
+        "email": "example2@gmail.com",
     }
 
     # Create admin user
@@ -95,9 +119,18 @@ def setup_users():
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data["username"] == admin_data["username"]
 
+    # Check that the user is not active
+    user = CustomUser.objects.get(email="example2@gmail.com")
+    assert not user.is_active
+
+    # Bypass Djoser User Activation
+    user = CustomUser.objects.get(email="example2@gmail.com")
+    user.is_active = True
+    user.save()
+
     # Admin login
     admin_login_data = {
-        "username": admin_data["username"],
+        "email": admin_data["email"],
         "password": admin_data["password"],
     }
     response = client.post("/auth/login/", admin_login_data)
@@ -150,6 +183,8 @@ def setup_student_data():
         "sex": CustomUser.SexChoices.MALE,
         "role": CustomUser.RoleChoices.STUDENT,
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
+        "email": "example3@gmail.com",
         "date_of_birth": timezone.now().date() - timedelta(weeks=500),
     }
     return student
@@ -183,6 +218,8 @@ def setup_student_profile_data():
         "sex": CustomUser.SexChoices.MALE,
         "role": CustomUser.RoleChoices.STUDENT,
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
+        "email": "example4@gmail.com",
         "date_of_birth": timezone.now().date(),
     }
     user = create_and_save(CustomUserCreateSerializer(data=student_data))
@@ -298,6 +335,8 @@ def setup_exam_result_data():
         "sex": CustomUser.SexChoices.MALE,
         "role": CustomUser.RoleChoices.STUDENT,
         "password": "12345678QQ",
+        "re_password": "12345678QQ",
+        "email": "example5@gmail.com",
         "date_of_birth": timezone.now().date(),
     }
     user = create_and_save(CustomUserCreateSerializer(data=student_data))
