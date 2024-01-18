@@ -87,6 +87,14 @@ DJOSER = {
     "PASSWORD_RESET_CONFIRM_URL": "auth/users/reset_password/{uid}/{token}",
     "USERNAME_RESET_CONFIRM_URL": "auth/users/reset_email_confirm/{uid}/{token}",
     "ACTIVATION_URL": "activation/{uid}/{token}",
+    "EMAIL": {
+        "activation": "users.email.CustomActivationEmail",
+        "confirmation": "users.email.CustomConfirmationEmail",
+        "password_reset": "users.email.PasswordResetEmail",
+        "password_changed_confirmation": "users.email.CustomPasswordConfirmationEmail",
+        "username_changed_confirmation": "users.email.UsernameChangedConfirmationEmail",
+        "username_reset": "users.email.UsernameResetEmail",
+    },
     "SERIALIZERS": {
         "user_create": "users.serializers.UserCreateSerializer",
         "user": "users.serializers.UserSerializer",
@@ -97,7 +105,7 @@ DJOSER = {
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates'],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
