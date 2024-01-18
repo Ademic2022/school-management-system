@@ -59,7 +59,7 @@ def setup_users():
         "email": teacher_data["email"],
         "password": teacher_data["password"],
     }
-    response = client.post("/auth/login/", teacher_login_data)
+    response = client.post("/users/login/", teacher_login_data)
     assert response.status_code == status.HTTP_200_OK
     assert "auth_token" in response.data
     teachers_token = response.data["auth_token"]
@@ -96,7 +96,7 @@ def setup_users():
         "email": student_data["email"],
         "password": student_data["password"],
     }
-    response = client.post("/auth/login/", student_login_data)
+    response = client.post("/users/login/", student_login_data)
     assert response.status_code == status.HTTP_200_OK
     assert "auth_token" in response.data
     student_token = response.data["auth_token"]
@@ -133,7 +133,7 @@ def setup_users():
         "email": admin_data["email"],
         "password": admin_data["password"],
     }
-    response = client.post("/auth/login/", admin_login_data)
+    response = client.post("/users/login/", admin_login_data)
     assert response.status_code == status.HTTP_200_OK
     assert "auth_token" in response.data
     admin_token = response.data["auth_token"]
