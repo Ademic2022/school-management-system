@@ -33,7 +33,6 @@ ALLOWED_HOSTS = [
 ]
 # ALLOWED_HOSTS = ["*"]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -84,13 +83,13 @@ DJOSER = {
     "USERNAME_CHANGED_EMAIL_CONFIRMATION": True,
     "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
     "SEND_CONFIRMATION_EMAIL": True,
-    "PASSWORD_RESET_CONFIRM_URL": "auth/users/reset_password/{uid}/{token}",
-    "USERNAME_RESET_CONFIRM_URL": "auth/users/reset_email_confirm/{uid}/{token}",
+    "PASSWORD_RESET_CONFIRM_URL": "reset_password/{uid}/{token}",
+    "USERNAME_RESET_CONFIRM_URL": "reset_email_confirm/{uid}/{token}",
     "ACTIVATION_URL": "activation/{uid}/{token}",
     "EMAIL": {
         "activation": "users.email.CustomActivationEmail",
         "confirmation": "users.email.CustomConfirmationEmail",
-        "password_reset": "users.email.PasswordResetEmail",
+        "password_reset": "users.email.CustomPasswordResetEmail",
         "password_changed_confirmation": "users.email.CustomPasswordConfirmationEmail",
         "username_changed_confirmation": "users.email.UsernameChangedConfirmationEmail",
         "username_reset": "users.email.UsernameResetEmail",
