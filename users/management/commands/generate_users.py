@@ -13,6 +13,7 @@ users = [
         "sex": CustomUser.SexChoices.MALE,
         "date_of_birth": timezone.now().date() - timedelta(weeks=50),
         "password": "string@1234",
+        "email": "example@gmail.com",
     },
     {
         "username": "peter",
@@ -22,6 +23,7 @@ users = [
         "sex": CustomUser.SexChoices.MALE,
         "date_of_birth": timezone.now().date() - timedelta(weeks=50),
         "password": "string@1234",
+        "email": "example1@gmail.com",
     },
     {
         "username": "david",
@@ -31,6 +33,7 @@ users = [
         "sex": CustomUser.SexChoices.MALE,
         "date_of_birth": timezone.now().date() - timedelta(weeks=50),
         "password": "string@1234",
+        "email": "example2@gmail.com",
     },
 
 ]
