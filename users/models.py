@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
 
 
 class CustomUser(AbstractUser):
@@ -37,8 +40,16 @@ class CustomUser(AbstractUser):
     role = models.CharField(max_length=10, choices=RoleChoices.choices)
     is_approved = models.BooleanField(default=False)
 
-    REQUIRED_FIELDS = ["first_name", "last_name", "sex", "role", "username", "is_approved", "address"]
-    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = [
+        "first_name",
+        "last_name",
+        "sex",
+        "role",
+        "username",
+        "is_approved",
+        "address",
+    ]
+    USERNAME_FIELD = "email"
 
     @property
     def get_full_name(self):
@@ -50,6 +61,22 @@ class CustomUser(AbstractUser):
 
     def get_users_by_role(self, role):
         return CustomUser.objects.filter(role=role)
+
+    def approve_user(self):
+        self.is_approved = True
+        self.save()
+        self.send_approval_email()
+
+    def send_approval_email(self):
+        subject = "Your account has been approved"
+        template = "approval_email.html"
+        context = {"recipient_name": self.first_name.capitalize()}
+
+        html_message = render_to_string(template, context)
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [self.email]
+
+        send_mail(subject, None, from_email, recipient_list, html_message=html_message)
 
     def __str__(self):
         return self.get_full_name
