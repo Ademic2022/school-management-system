@@ -122,7 +122,6 @@ WSGI_APPLICATION = "school_management_system.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": config("DATABASE_ENGINE", default="django.db.backends.sqlite3"),
