@@ -1,7 +1,6 @@
-from django.db import models
 from datetime import timedelta
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator
 from core.choices import ExamType
 from core.models.subject import Subject
 

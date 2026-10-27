@@ -1,4 +1,9 @@
-from core.filters import StudentFilter, SubjectFilter
+from core.filters import (
+    ExamFilter,
+    StudentFilter,
+    SubjectFilter,
+    SubjectResultFilter,
+)
 from core.models.student import Student
 from core.permissions import *
 from core.serializers import *
@@ -8,7 +13,30 @@ from django_filters import rest_framework as filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import MethodNotAllowed
+
+
+class EmptyListMessageMixin:
+    """
+    Overrides the default list action to return a message when the queryset is empty:
+    a 404 if query parameters were provided, otherwise a 200.
+    """
+
+    filtered_empty_message = "No records found matching the provided filters."
+    empty_message = "No records found in the database yet."
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        data = self.get_serializer(queryset, many=True).data
+
+        if not data:
+            if request.query_params:
+                return Response(
+                    {"detail": self.filtered_empty_message},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+            return Response({"detail": self.empty_message}, status=status.HTTP_200_OK)
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class SubjectViewSet(ModelViewSet):
@@ -92,7 +120,9 @@ class TeacherViewSet(ModelViewSet):
         - Manages CRUD operations for Teacher model with custom actions and specific permissions.
     """
 
-    queryset = Teacher.objects.all()
+    queryset = Teacher.objects.select_related("user", "classroom").prefetch_related(
+        "assigned_subjects"
+    )
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
@@ -110,8 +140,7 @@ class TeacherViewSet(ModelViewSet):
     @action(detail=False, methods=["GET"])
     def get_assigned_subjects(self, request):
         try:
-            user = CustomUser.objects.get(id=request.user.id)
-            teacher = Teacher.objects.get(user=user.id)
+            teacher = Teacher.objects.get(user=request.user)
         except Teacher.DoesNotExist:
             return Response(
                 {"detail": "Teacher not found, no subjects to display!"}, status=404
@@ -123,9 +152,6 @@ class TeacherViewSet(ModelViewSet):
         serializer = SubjectSerializer(assigned_subjects, many=True)
 
         return Response(serializer.data, status=200)
-
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
 
 
 class StudentViewSet(ModelViewSet):
@@ -156,7 +182,9 @@ class StudentViewSet(ModelViewSet):
         - Manages CRUD operations for Student model with custom actions, filtering, and specific permissions.
     """
 
-    queryset = Student.objects.all()
+    queryset = Student.objects.select_related("user", "classroom").prefetch_related(
+        "enrolled_subjects"
+    )
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = StudentFilter
 
@@ -176,8 +204,7 @@ class StudentViewSet(ModelViewSet):
     @action(detail=False, methods=["GET"])
     def get_enrolled_subjects(self, request):
         try:
-            user = CustomUser.objects.get(id=request.user.id)
-            student = Student.objects.get(user=user.id)
+            student = Student.objects.get(user=request.user)
         except Student.DoesNotExist:
             return Response(
                 {"detail": "Student not found, no subjects to display!"}, status=404
@@ -211,7 +238,7 @@ class AdminViewSet(ModelViewSet):
     permission_classes = [IsAdmin]
 
 
-class ExamViewSet(ModelViewSet):
+class ExamViewSet(EmptyListMessageMixin, ModelViewSet):
     """
     Django ModelViewSet: ExamViewSet
 
@@ -223,10 +250,7 @@ class ExamViewSet(ModelViewSet):
         - permission_classes: Requires IsTeacherOrAdmin permission for all actions.
 
     Custom List Action:
-        - list(self, request, *args, **kwargs): Overrides the default list action.
-          - Checks if the queryset is empty and provides appropriate responses.
-            - If query parameters are provided but no matches are found, returns a 404 response.
-            - If no query parameters are provided and no exams are in the database, returns a 200 response.
+        - Inherited from EmptyListMessageMixin; returns a message when no exams match.
 
     Example Usage:
         - Manages CRUD operations for Exam model with specific permissions and custom list action.
@@ -235,30 +259,12 @@ class ExamViewSet(ModelViewSet):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
     permission_classes = [IsTeacherOrAdmin]
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        if not queryset.exists():
-            if request.query_params:
-                # If query parameters are provided, but there are no matchers
-                return Response(
-                    {"detail": "No exams found matching the provided filters."},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-            else:
-                # If no query parameters are provided, and there are no exams in the database
-                return Response(
-                    {"detail": "No Exams found in the farm yet."},
-                    status=status.HTTP_200_OK,
-                )
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    filterset_class = ExamFilter
+    filtered_empty_message = "No exams found matching the provided filters."
+    empty_message = "No Exams found in the farm yet."
 
 
-class SubjectResultViewSet(ModelViewSet):
+class SubjectResultViewSet(EmptyListMessageMixin, ModelViewSet):
     """
     Django ModelViewSet: SubjectResultViewSet
 
@@ -270,10 +276,7 @@ class SubjectResultViewSet(ModelViewSet):
         - permission_classes: Requires IsTeacherOrAdmin permission for all actions.
 
     Custom List Action:
-        - list(self, request, *args, **kwargs): Overrides the default list action.
-          - Checks if the queryset is empty and provides appropriate responses.
-            - If query parameters are provided but no matches are found, returns a 404 response.
-            - If no query parameters are provided and no subject results are in the database, returns a 200 response.
+        - Inherited from EmptyListMessageMixin; returns a message when no results match.
 
     Example Usage:
         - Manages CRUD operations for SubjectResult model with specific permissions and custom list action.
@@ -282,24 +285,6 @@ class SubjectResultViewSet(ModelViewSet):
     queryset = SubjectResult.objects.all()
     serializer_class = SubjectResultSerializer
     permission_classes = [IsTeacherOrAdmin]
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        if not queryset.exists():
-            if request.query_params:
-                # If query parameters are provided, but there are no matchers
-                return Response(
-                    {"detail": "No result found matching the provided filters."},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-            else:
-                # If no query parameters are provided, and there are no subject result in the database
-                return Response(
-                    {"detail": "No result found in the database yet."},
-                    status=status.HTTP_200_OK,
-                )
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    filterset_class = SubjectResultFilter
+    filtered_empty_message = "No result found matching the provided filters."
+    empty_message = "No result found in the database yet."

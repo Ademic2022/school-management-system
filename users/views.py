@@ -1,5 +1,4 @@
 from users.filters import CustomUserFilter, ImageFilter, NotificationFilter
-from rest_framework.viewsets import ModelViewSet
 from users.serializers import (
     CustomUserCreateSerializer,
     CustomUserSerializer,
@@ -34,26 +33,20 @@ class CustomUserViewSet(ReadOnlyModelViewSet):
         user_ids = request.data.get("user_ids", [])
         current_user = request.user
 
-        approved_users = []
-        not_found_users = []
-        invalid_users = []
+        valid_ids = [int(uid) for uid in user_ids if str(uid).isdigit()]
+        invalid_users = [str(uid) for uid in user_ids if not str(uid).isdigit()]
+        users_by_id = CustomUser.objects.in_bulk(valid_ids)
+        not_found_users = [str(uid) for uid in valid_ids if uid not in users_by_id]
 
-        for user_id in user_ids:
-            try:
-                user = CustomUser.objects.get(id=int(user_id))
-            except (ValueError, CustomUser.DoesNotExist):
-                if user.isdigit(user_id):
-                    not_found_users.append(user_id)
-                else:
-                    invalid_users.append(user_id)
+        approved_users = []
+        for user in users_by_id.values():
+            if user == current_user:
+                raise ValidationError("You cannot approve yourself")
+            elif user.is_approved:
+                raise ValidationError(f"User {user.username} is already approved")
             else:
-                if user == current_user:
-                    raise ValidationError("You cannot approve yourself")
-                elif user.is_approved:
-                    raise ValidationError(f"User {user.username} is already approved")
-                else:
-                    user.approve_user()
-                    approved_users.append(user)
+                user.approve_user()
+                approved_users.append(str(user))
 
         response_data = {}
         if approved_users:

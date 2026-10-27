@@ -57,8 +57,6 @@ class ClassRoom(models.Model):
         return self.code
 
     def save(self, *args, **kwargs):
-        if self.id is None:
-            self.id = self.pk
         self.code = self.update_class_code()
         super().save(*args, **kwargs)
 

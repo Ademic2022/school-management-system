@@ -94,12 +94,14 @@ class CustomUser(AbstractUser):
             admin_emails = admins.values_list("email", flat=True)
 
             # Create notifications for each admin
-            for admin in admins:
-                Notification.objects.create(
+            Notification.objects.bulk_create(
+                Notification(
                     user=admin,
                     subject=f"New User Registration: {self.get_full_name}",
                     message=f"A new user with username '{self.username}' has registered on the platform.",
                 )
+                for admin in admins
+            )
 
             subject = f"New User Registration: {self.username}"
             template = "registration_notification.html"
