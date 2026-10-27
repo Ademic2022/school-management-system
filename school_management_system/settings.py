@@ -124,14 +124,22 @@ WSGI_APPLICATION = "school_management_system.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASES = {
     "default": {
-        "ENGINE": config("DATABASE_ENGINE", default="django.db.backends.sqlite3"),
-        "NAME": config("DATABASE_NAME", default="db.sqlite3"),
-        "USER": config("DATABASE_USER", default="myuser"),
-        "PASSWORD": config("DATABASE_PASSWORD", default="mypassword"),
-        "HOST": config("DATABASE_HOST", default="localhost"),
-        "PORT": config("DATABASE_PORT", default=""),
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# Postgres configuration (disabled; uncomment to use)
+# DATABASES = {
+#     "default": {
+#         "ENGINE": config("DATABASE_ENGINE", default="django.db.backends.postgresql"),
+#         "NAME": config("DATABASE_NAME", default="mydb"),
+#         "USER": config("DATABASE_USER", default="myuser"),
+#         "PASSWORD": config("DATABASE_PASSWORD", default="mypassword"),
+#         "HOST": config("DATABASE_HOST", default="localhost"),
+#         "PORT": config("DATABASE_PORT", default="5432"),
+#     }
+# }
 # Email configurations
 EMAIL_BACKEND = config(
     "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
