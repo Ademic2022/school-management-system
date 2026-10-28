@@ -1,4 +1,5 @@
 from core.filters import (
+    AttendanceFilter,
     ExamFilter,
     StudentFilter,
     SubjectFilter,
@@ -7,7 +8,8 @@ from core.filters import (
 from core.models.student import Student
 from core.permissions import *
 from core.serializers import *
-from rest_framework.viewsets import ModelViewSet
+from django.db import transaction
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework import viewsets, status
 from django_filters import rest_framework as filters
 from rest_framework.decorators import action
@@ -288,3 +290,71 @@ class SubjectResultViewSet(EmptyListMessageMixin, ModelViewSet):
     filterset_class = SubjectResultFilter
     filtered_empty_message = "No result found matching the provided filters."
     empty_message = "No result found in the database yet."
+
+
+class AttendanceViewSet(ReadOnlyModelViewSet):
+    """
+    Django ReadOnlyModelViewSet: AttendanceViewSet
+
+    Lists and retrieves attendance records, and marks a whole class in one request.
+    Records are only written through bulk_mark, so every write goes through the
+    one-record-per-student-per-day upsert.
+
+    Attributes:
+        - queryset: All Attendance records with student, user, classroom and marker joined.
+        - serializer_class: Serializer used for reading Attendance records.
+        - permission_classes: Requires IsTeacherOrAdmin permission for all actions.
+        - filterset_class: Filters by classroom, date, student and status.
+
+    Custom Actions:
+        - bulk_mark(self, request): Creates or updates one record per student for the given
+          classroom and date, and returns the saved records with created/updated counts.
+
+    Example Usage:
+        - GET /core/attendance/?classroom=1&date=2026-10-27
+        - POST /core/attendance/bulk_mark/
+          {"classroom": 1, "date": "2026-10-27", "records": [{"student": 4, "status": "LATE"}]}
+    """
+
+    queryset = Attendance.objects.select_related(
+        "student__user", "classroom", "marked_by"
+    )
+    serializer_class = AttendanceSerializer
+    permission_classes = [IsTeacherOrAdmin]
+    filterset_class = AttendanceFilter
+
+    @action(detail=False, methods=["POST"])
+    def bulk_mark(self, request):
+        serializer = BulkAttendanceSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        classroom = serializer.validated_data["classroom"]
+        date = serializer.validated_data["date"]
+        students = serializer.validated_data["students"]
+
+        created_count = 0
+        saved_ids = []
+        with transaction.atomic():
+            for record in serializer.validated_data["records"]:
+                attendance, created = Attendance.objects.update_or_create(
+                    student=students[record["student"]],
+                    date=date,
+                    defaults={
+                        "classroom": classroom,
+                        "status": record["status"],
+                        "marked_by": request.user,
+                    },
+                )
+                created_count += created
+                saved_ids.append(attendance.id)
+
+        saved = self.get_queryset().filter(id__in=saved_ids)
+        return Response(
+            {
+                "classroom": classroom.id,
+                "date": date,
+                "created": created_count,
+                "updated": len(saved_ids) - created_count,
+                "records": AttendanceSerializer(saved, many=True).data,
+            },
+            status=status.HTTP_200_OK,
+        )

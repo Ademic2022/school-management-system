@@ -1,3 +1,6 @@
+from django.utils import timezone
+from core.choices import AttendanceStatusChoices
+from core.models.attendance import Attendance
 from core.models.results import SubjectResult
 from core.models.exams import Exam
 from users.models import CustomUser
@@ -7,9 +10,15 @@ from core.models.teacher import Teacher
 from core.models.classroom import ClassRoom
 from core.models.subject import Subject
 from rest_framework.serializers import (
+    ChoiceField,
+    DateField,
+    IntegerField,
+    ListField,
     ModelSerializer,
     PrimaryKeyRelatedField,
     ReadOnlyField,
+    Serializer,
+    ValidationError,
 )
 from users.serializers import CustomUserSerializer, CustomUserSerializer2
 
@@ -158,3 +167,85 @@ class SubjectResultSerializer(ModelSerializer):
     class Meta:
         model = SubjectResult
         fields = ("student", "exam", "marks_obtained", "remarks")
+
+
+class AttendanceSerializer(ModelSerializer):
+    """
+    Django Model Serializer: AttendanceSerializer
+
+    Read-only representation of an Attendance record, with the student's name and
+    registration number so the record page doesn't need a second request per student.
+    """
+
+    student_name = ReadOnlyField(source="student.user.get_full_name")
+    registration_number = ReadOnlyField(source="student.registration_number")
+    marked_by_name = ReadOnlyField(source="marked_by.get_full_name", default=None)
+
+    class Meta:
+        model = Attendance
+        fields = (
+            "id",
+            "student",
+            "student_name",
+            "registration_number",
+            "classroom",
+            "date",
+            "status",
+            "marked_by",
+            "marked_by_name",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = fields
+
+
+class AttendanceEntrySerializer(Serializer):
+    """
+    Serializer: AttendanceEntrySerializer
+
+    One student's status inside a bulk_mark request.
+    """
+
+    student = IntegerField()
+    status = ChoiceField(choices=AttendanceStatusChoices.choices)
+
+
+class BulkAttendanceSerializer(Serializer):
+    """
+    Serializer: BulkAttendanceSerializer
+
+    Validates a bulk_mark request: a classroom, a date that is not in the future,
+    and a non-empty list of student statuses. Every student must belong to the
+    classroom and may appear only once.
+    """
+
+    classroom = PrimaryKeyRelatedField(queryset=ClassRoom.objects.all())
+    date = DateField()
+    records = ListField(child=AttendanceEntrySerializer(), allow_empty=False)
+
+    def validate_date(self, value):
+        if value > timezone.localdate():
+            raise ValidationError("Attendance cannot be marked for a future date.")
+        return value
+
+    def validate(self, attrs):
+        student_ids = [record["student"] for record in attrs["records"]]
+        duplicates = sorted({sid for sid in student_ids if student_ids.count(sid) > 1})
+        if duplicates:
+            raise ValidationError(
+                {"records": f"Students listed more than once: {duplicates}"}
+            )
+
+        students = Student.objects.in_bulk(student_ids)
+        not_in_class = sorted(
+            sid
+            for sid in student_ids
+            if sid not in students or students[sid].classroom_id != attrs["classroom"].id
+        )
+        if not_in_class:
+            raise ValidationError(
+                {"records": f"Students not found in this classroom: {not_in_class}"}
+            )
+
+        attrs["students"] = students
+        return attrs

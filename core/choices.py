@@ -68,3 +68,10 @@ class ExamType(models.TextChoices):
     MIDTERM = "Mid Term"
     FINAL = "Final Exam"
     QUIZ = "Quiz"
+
+
+class AttendanceStatusChoices(models.TextChoices):
+    PRESENT = "PRESENT"
+    ABSENT = "ABSENT"
+    LATE = "LATE"
+    LEAVE = "LEAVE"
