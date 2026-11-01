@@ -101,3 +101,6 @@ class NotificationViewSet(ModelViewSet):
     filterset_class = NotificationFilter
 
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user)
